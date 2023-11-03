@@ -1,0 +1,11 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "socket": "cpp",
+        "iostream": "cpp",
+        "io_context": "cpp",
+        "ostream": "cpp",
+        "random": "cpp",
+        "queue": "cpp"
+    }
+}
