@@ -13,11 +13,12 @@ using namespace std;
 #define SERVER_IP "172.0.1.1"
 #define SERVER_PORT 8888
 
-//g++ -o B1 U.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
+//g++ -o B2 U.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
 //-----------------------------------------------------------
 using namespace std;
 string TRUE_IP;
-string identity_to_name[3] = {
+string identity_to_name[4] = {
+    "",
     "student",
     "teacher",
     "administrator"
@@ -34,17 +35,19 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     char buf[BUFF_LEN];
     cout<<"Asking for your identity id(10001-19999)"<<endl;
         //error!!!!!   ok
-    user_id = 10001; //initialize to 10001, get a right IP from the terminal
+    user_id = 10001;  // 初始化 user_id 为 10001，从终端获取正确的 IP
     sprintf(buf,"%c%s%d",LOGIN_CODE,TERMINAL_ID,user_id);
     len = sizeof(*dst);
     sendto(fd, buf, BUFF_LEN, 0, dst, len);
     cout<<"Start waiting for the response!"<<endl;
+
     WAITING_LOGINFEEDBACK:
     sleep(1);
     memset(buf, 0, BUFF_LEN);
     recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
     cout<<"receive:"<<buf<<endl;
     string str_temp(buf);
+    // 如果接收到不是预期的反馈消息，重新发送请求
     if(!(isneed(LOGIN_FEEDBACK_CODE_FAIL,to_string(user_id),str_temp)||isneed(LOGIN_FEEDBACK_CODE_SUCCESS,to_string(user_id),str_temp))){
         cout<<"receive package:"<<buf<<",error"<<endl;
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
@@ -55,6 +58,7 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         exit(0);
     }
     else{
+        //成功，解码出真实ip
         TRUE_IP = decode(str_temp);
         cout<<"get ip: "<<TRUE_IP<<endl;
     }
@@ -91,10 +95,12 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         cout<<"Thank you for using!"<<endl;
         exit(0);
     }
-        //send the choice back to the terminal
+    
+    //登录，将get发向终端
     memset(buf, 0, BUFF_LEN);
     sprintf(buf,"%c%s%d%d",LOGIN_PERSON_CODE,TERMINAL_ID,user_id,get);
     sendto(fd, buf, BUFF_LEN, 0, dst, len);
+
     WAIT_FOR_LOGINPERMIT_FEEDBACK:
     sleep(1);
     memset(buf, 0, BUFF_LEN);
@@ -111,26 +117,28 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         cin>>USER_ID;
         cout<<"Enter your password:";
         cin>>USER_PASSWORD;
+        //将登录信息发到终端
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%d%s,%s",LOGIN_PERSON_CODE,TERMINAL_ID,user_id,USER_ID.c_str(),USER_PASSWORD.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
 
-
+        // 等待服务器的登录反馈
         WAIT_FOR_LASTSTEP_FEEDBACK:
         sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
         if(!(isneed(LOGIN_FEEDBACK_CODE_SUCCESS,TRUE_IP,buf)||isneed(LOGIN_FEEDBACK_CODE_FAIL,TRUE_IP,buf))){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
-            goto WAIT_FOR_LASTSTEP_FEEDBACK;
+            goto WAIT_FOR_LASTSTEP_FEEDBACK;// 重新等待反馈
         }
 
         if(buf[0]==LOGIN_FEEDBACK_CODE_FAIL){
-            cout<<"information error!"<<endl;
+            cout<<"information error!"<<endl;// 登录失败
             goto INPUT;
 
         }
         else{
+            // 登录成功，记录用户信息
             USER_INFORMATION[0] = USER_ID;
             USER_INFORMATION[1] = decode(buf);
             USER_INFORMATION[2] = USER_PASSWORD;
@@ -139,32 +147,33 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         }   
     }
     else if(get==4){
+        //选择了register
         cout<<"Enter password for root:";
         string getpassword;
         cin>>getpassword;
+        //向终端发密码
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%d%s",LOGIN_PERSON_CODE,TERMINAL_ID,user_id,getpassword.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
 
-
+        // 等待服务器的密码反馈
         WAIT_FOR_LOGOUTPASSWORD_FEEDBACK:
         sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
         if(!(isneed(LOGIN_ROOT_PASSWORD_RIGHT,TRUE_IP,buf)||isneed(LOGIN_ROOT_PASSWORD_WRONG,TRUE_IP,buf))){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
-            goto WAIT_FOR_LOGOUTPASSWORD_FEEDBACK;
+            goto WAIT_FOR_LOGOUTPASSWORD_FEEDBACK;// 重新等待反馈
         }
-
-
         string str_temp_get(buf);
         if(str_temp_get[0]==LOGIN_ROOT_PASSWORD_WRONG){
-            cout<<"Password wrong!"<<endl;
+            cout<<"Password wrong!"<<endl; // 密码错误
             goto INPUT;
         }
         else{
             cout<<"Password right"<<endl;
         }
+
 
         INPUT2:
         cout<<"root options: 1.create user 2.back"<<endl;
@@ -188,17 +197,19 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         else{
 
         }
+        // 向服务器发送创建用户请求
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%d%d,%s,%s,%s,%s",ROOT_OP,TERMINAL_ID,user_id,get,USER_ID.c_str(),USER_ACCOUNT.c_str(),USER_PASSWORD.c_str(),USER_IDENTITY.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
         
+        // 等待服务器的创建用户反馈
         WAIT_FOR_ROOT_FEEDBACK:
         sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
         if(!isneed(ROOT_OP_FEEDBACK,TRUE_IP,buf)){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
-            goto WAIT_FOR_ROOT_FEEDBACK;
+            goto WAIT_FOR_ROOT_FEEDBACK;// 重新等待反馈
         }
         
         cout<<"success"<<endl;

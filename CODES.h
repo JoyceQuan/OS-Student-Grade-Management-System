@@ -28,6 +28,7 @@ using namespace std;
 //terminal ID
 #define TERMINAL_ID "10000"
 
+// 自定义 sleep 函数，用于在指定时间内暂停程序执行,因为Linux没有Windows.h
 void sleep(unsigned int time){
     struct timeval tv;
     tv.tv_sec = time;
@@ -36,6 +37,7 @@ void sleep(unsigned int time){
 
 }
 
+// 检查收到的包是否符合预期的格式
 bool isneed(char code, string target,string buf){
     if(buf[0]!=code){
         return false;
@@ -45,12 +47,15 @@ bool isneed(char code, string target,string buf){
     }
     return true;
 }
+// 从包中提取特定位置的子串
 string get_region(string buf){
     return buf.substr(6,5);
 }
+// 从包中提取特定位置的子串
 string decode(string buf){
     return buf.substr(11);
 }
+// 重新构建一个包，交换位置信息
 string RE_TO_SEND(string buf){
     return buf[0] + buf.substr(6,5) + buf.substr(1,5) + buf.substr(11);
 }
