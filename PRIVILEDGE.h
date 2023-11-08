@@ -9,26 +9,27 @@ using namespace std;
 
 class priviledge{
 public:
-    int flagset[PRI_LEN];
-    int identity;
-    vector<string> true_options;
-    pair<char,string>pos = make_pair('1',"");
+    int flagset[PRI_LEN];  // 存储特权标志的数组
+    int identity;  // 用户身份标识
+    vector<string> true_options;  // 存储可用的特权选项
+    pair<char, string> pos = make_pair('1', "");  // 当前位置
     vector<char> index_to_option;
-    static vector<string> priviledges;
-    static vector<vector<int>> default_flagset;
-    priviledge();
-    priviledge(int);
-    priviledge(bool,string);
-    string show_options(string);
-    void select();
-    void print_selections();
-    void setdefault();
-    bool ismeet(string,string);
-    void set_pos(bool,char);
-    void set(string);
-    void set2(string);
-    char search_option(string);
+
+    static vector<string> priviledges;  // 预定义的特权列表
+    static vector<vector<int>> default_flagset;  // 默认特权标志数组
+    priviledge();  // 默认构造函数
+    priviledge(int);  // 带身份参数的构造函数
+    priviledge(bool, string);  // 根据文件初始化的构造函数
+    string show_options(string);  // 从特权字符串中提取选项
+    void select();  // 选择可用的特权选项
+    void print_selections();  // 打印可用的特权选项
+    void setdefault();  // 设置为默认特权标志
+    bool ismeet(string, string);  // 检查两个字符串是否匹配
+    void set_pos(bool, char);  // 设置当前位置
+    void set(string);  // 设置特权身份
+    void set2(string);  // 从文件初始化特权标志
 };
+
 vector<string> priviledge::priviledges = {
     "11:Choose courses","211:Optional courses","212:Selection",
     "12:Selected courses","221:Choose course","3211:Homework","3212:Hand in homework","3213:Ratings","222:Credits",
@@ -83,6 +84,7 @@ priviledge::priviledge(bool flag,string target){
         }
     }
 }
+// 从特权字符串中提取文字选项
 string priviledge::show_options(string temp){
     int index = 0;
     for(int i = 0;i<temp.size();i++){
@@ -93,23 +95,18 @@ string priviledge::show_options(string temp){
     }
     return temp.substr(index);
 }
+// 选择可用的特权选项
 void priviledge::select(){
     true_options.clear();
     index_to_option.clear();
-    int count = 0;
     for(int i = 0;i<PRI_LEN;i++){
-        if(priviledges[i][0]==pos.first && flagset[i]==1 &&(ismeet(pos.second,priviledges[i].substr(1))||priviledges[i][1]=='9')){
+        if(priviledges[i][0]==pos.first && flagset[i]==1 && ismeet(pos.second,priviledges[i].substr(1))){
             true_options.push_back(show_options(priviledges[i]));
-            if(priviledges[i][1]!='9'){
-                count+=1;
-                index_to_option.push_back(priviledges[i][pos.second.size()+1]);
-            }
-            else{
-                index_to_option.push_back('b');
-            }
+            // index_to_option.push_back(priviledges[priviledges[0]-'0']);
         }
     }
 }
+//ab字符串是否相同// a 是较短的字符串
 bool priviledge::ismeet(string a,string b){
     bool output = true;
     for(int i = 0;i<a.size();i++){
@@ -119,11 +116,13 @@ bool priviledge::ismeet(string a,string b){
     }
     return output;
 }//a is shorter
+
 void priviledge::print_selections(){
     for(int i = 0;i<true_options.size();i++){
         cout<<i+1<<" : "<<true_options[i]<<endl;
     }
 }
+
 void priviledge::set_pos(bool flag,char target){
     if(flag){
         pos.first = char(int(pos.first)+1);
@@ -134,10 +133,12 @@ void priviledge::set_pos(bool flag,char target){
         pos.second = pos.second.substr(0,pos.second.size()-1);
     }
 }
+// 权限设置 target是数
 void priviledge::set(string target){
     identity = atoi(target.c_str());
     setdefault();
 }
+//权限设置 target是路径
 void priviledge::set2(string target){
     ifstream target_file;
         target_file.open(target,ios::in);
@@ -156,8 +157,4 @@ void priviledge::set2(string target){
         for(int i = 1;i<get_file.size();i++){
             flagset[i-1] = atoi(get_file[i].c_str());
         }
-}
-char priviledge::search_option(string target){
-    int tar_temp = atoi(target.c_str());
-    return index_to_option[tar_temp-1];
 }

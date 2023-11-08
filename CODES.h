@@ -23,17 +23,12 @@ using namespace std;
 #define ROOT_OP '8'
 #define ROOT_OP_FEEDBACK '9'
 #define STUDENT_LOGIN 'a'
-#define POS_UPDATE_ASK 'b'
-#define POS_UPDATE_FEEDBACK 'c'
-#define ASK_FOR_OPTION_SHOW 'd'
-// split with ,  the first bit represents the call of input function in users program
-#define ASK_FOR_OPTION_SHOW_FEEDBACK 'e'
-
 
 
 //terminal ID
 #define TERMINAL_ID "10000"
 
+// 自定义 sleep 函数，用于在指定时间内暂停程序执行,因为Linux没有Windows.h
 void sleep(unsigned int time){
     struct timeval tv;
     tv.tv_sec = time;
@@ -42,6 +37,7 @@ void sleep(unsigned int time){
 
 }
 
+// 检查收到的包是否符合预期的格式
 bool isneed(char code, string target,string buf){
     if(buf[0]!=code){
         return false;
@@ -51,53 +47,15 @@ bool isneed(char code, string target,string buf){
     }
     return true;
 }
-
-bool isneed_accurate(char code, string target, string origin,string buf){
-    if(buf[0]!=code){
-        return false;
-    }
-    if(target!=buf.substr(1,5)){
-        return false;
-    }
-    if(origin!=buf.substr(6,5)){
-        return false;
-    }
-    return true;
-}
+// 从包中提取特定位置的子串
 string get_region(string buf){
     return buf.substr(6,5);
 }
+// 从包中提取特定位置的子串
 string decode(string buf){
     return buf.substr(11);
 }
+// 重新构建一个包，交换位置信息
 string RE_TO_SEND(string buf){
     return buf[0] + buf.substr(6,5) + buf.substr(1,5) + buf.substr(11);
-}
-
-pair<char,pair<string,string>> decode_options(string buf){
-    pair<char,pair<string,string>>output;
-    output.first = buf[0];
-    buf = buf.substr(1);
-    int index = 0;
-    for(int i = 0;i<buf.size();i++){
-        if(buf[i]==';'){
-            index=i;
-            break;
-        }
-    }
-    //cout<<"debug---"<<endl;
-    //cout<<buf.substr(0,index)<<endl;
-    //cout<<buf.substr(index+1)<<endl;
-    //cout<<"--------"<<endl;
-    output.second = make_pair(buf.substr(0,index),buf.substr(index+1));
-    return output;
-}
-string FORMAT(string target, int len){
-    string output(len,' ');
-    for(int i = 0;i<len;i++){
-        if(i<target.size()){
-            output[i] = target[i];
-        }
-    }
-    return output;
 }
