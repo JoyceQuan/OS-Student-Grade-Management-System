@@ -1,4 +1,5 @@
 #include<iostream>
+#include<iomanip>
 #include<cstring>
 #include<vector>
 #include<mysql/mysql.h>
@@ -6,6 +7,16 @@ using namespace std;
 //g++ -o C1 TDB.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
  //sudo cat /etc/mysql/debian.cnf
  //mysql -udebian-sys-maint -p
+string FORMAT(string target, int len){
+    string output(len,' ');
+
+    for(int i = 0;i<len;i++){
+        if(i<target.size()){
+            output[i] = target[i];
+        }
+    }
+    return output;
+}
 
 int main(){
     MYSQL mysql;
@@ -17,7 +28,9 @@ int main(){
     else{
         cout<<"connect success\n";
     }
-    string sql = "drop from users where ID = '202164700325'";
+    string sql = "select * from users where ID = '202164700325'";
     mysql_query(&mysql,sql.c_str());
     MYSQL_RES * result = mysql_store_result(&mysql);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    cout<<FORMAT(row[0],20)<<FORMAT(row[1],20)<<FORMAT(row[2],20)<<FORMAT(row[3],20);
 }
