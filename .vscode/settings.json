@@ -6,6 +6,11 @@
         "io_context": "cpp",
         "ostream": "cpp",
         "random": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "__split_buffer": "cpp",
+        "utility": "cpp"
     }
 }
