@@ -71,18 +71,11 @@ insert into course values('01201','Quantum Mechanics',4);
 insert into course values('LA101','Chinese Language',2);
 insert into course values('LA255','English Writing',2);
 ```
-* Insect users
+* Insect users:0:学生；1:老师；2：管理员
 ```sql
-insert into course values('CS101','Computer Science',2);
-insert into course values('CS201','Data Structure',4);
-insert into course values('CS505','C++ Programming',3);
-insert into course values('CS809','Python',2);
-insert into course values('B0103','Organic Chemistry',3);
-insert into course values('B0511','Chemical Experiment',2);
-insert into course values('01109','College Physics',4);
-insert into course values('01201','Quantum Mechanics',4);
-insert into course values('LA101','Chinese Language',2);
-insert into course values('LA255','English Writing',2);
+insert into users values('1','1','1',1);
+insert into users values('2','2','2',2);
+insert into users values('3','3','3',3);
 ```
 
 ## Code
