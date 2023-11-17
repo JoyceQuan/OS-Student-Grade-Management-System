@@ -14,7 +14,7 @@ using namespace std;
 #define SERVER_IP "172.0.1.1"
 #define SERVER_PORT 8888
 
-//g++ -o B1 U.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
+//g++ -o B1 U.cpp CODES.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
 //-----------------------------------------------------------
 using namespace std;
 string TRUE_IP;
@@ -24,13 +24,20 @@ string identity_to_name[4] = {
     "teacher",
     "administrator"
 };
+string GET_PUT(string c){
+    string output;
+    getline(cin,output);
+    if(c[1]=='0'){
+        if(output[0]=='O'||output[0]=='h'){
 
-char GET_PUT(char c){
-    char output;
-    cin>>output;
-    while(output>c||output<'1'){
-        cout<<"please input legal choices!"<<endl;
-        cin>>output;
+        }
+        else{
+            while(output[0]>c[0]||output[0]<'1'){
+                cout<<"please input legal choices!"<<endl;
+                getline(cin,output);
+            }
+        }
+        return output;
     }
     return output;
 }
@@ -49,7 +56,6 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     sendto(fd, buf, BUFF_LEN, 0, dst, len);
     cout<<"Start waiting for the response!"<<endl;
     WAITING_LOGINFEEDBACK:
-    sleep(1);
     memset(buf, 0, BUFF_LEN);
     recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
     cout<<"receive:"<<buf<<endl;
@@ -57,6 +63,7 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     if(!(isneed(LOGIN_FEEDBACK_CODE_FAIL,to_string(user_id),str_temp)||isneed(LOGIN_FEEDBACK_CODE_SUCCESS,to_string(user_id),str_temp))){
         cout<<"receive package:"<<buf<<",error"<<endl;
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
+        sleep(1);
         goto WAITING_LOGINFEEDBACK;
     }
     if(str_temp[0]==LOGIN_FEEDBACK_CODE_FAIL){
@@ -89,12 +96,12 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
 
 
         WAIT_FOR_LOGOUT_FEEDBACK:
-        sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //wait for a feedback before leave
         cout<<"receiving:"<<buf<<endl;
         if(!isneed(LOGOUT_CONFIRMATION,TRUE_IP,buf)){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
+            sleep(1);
             goto WAIT_FOR_LOGOUT_FEEDBACK;
         }
         cout<<"Thank you for using!"<<endl;
@@ -102,15 +109,15 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     }
         //send the choice back to the terminal
     memset(buf, 0, BUFF_LEN);
-    sprintf(buf,"%c%s%d%d",LOGIN_PERSON_CODE,TERMINAL_ID,user_id,get);
+    sprintf(buf,"%c%s%s%d",LOGIN_PERSON_CODE,TERMINAL_ID,TRUE_IP.c_str(),get);
     sendto(fd, buf, BUFF_LEN, 0, dst, len);
     WAIT_FOR_LOGINPERMIT_FEEDBACK:
-    sleep(1);
     memset(buf, 0, BUFF_LEN);
     recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
 
     if(!isneed(LOGIN_PERMIT,TRUE_IP,buf)){
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
+        sleep(1);
         goto WAIT_FOR_LOGINPERMIT_FEEDBACK;
     }
     string USER_INFORMATION[4];
@@ -121,16 +128,16 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         cout<<"Enter your password:";
         cin>>USER_PASSWORD;
         memset(buf, 0, BUFF_LEN);
-        sprintf(buf,"%c%s%d%s,%s",LOGIN_PERSON_CODE,TERMINAL_ID,user_id,USER_ID.c_str(),USER_PASSWORD.c_str());
+        sprintf(buf,"%c%s%s%s,%s",LOGIN_PERSON_CODE2,TERMINAL_ID,TRUE_IP.c_str(),USER_ID.c_str(),USER_PASSWORD.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
 
 
         WAIT_FOR_LASTSTEP_FEEDBACK:
-        sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
         if(!(isneed(LOGIN_FEEDBACK_CODE_SUCCESS,TRUE_IP,buf)||isneed(LOGIN_FEEDBACK_CODE_FAIL,TRUE_IP,buf))){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
+            sleep(1);
             goto WAIT_FOR_LASTSTEP_FEEDBACK;
         }
 
@@ -152,16 +159,16 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         string getpassword;
         cin>>getpassword;
         memset(buf, 0, BUFF_LEN);
-        sprintf(buf,"%c%s%d%s",LOGIN_PERSON_CODE,TERMINAL_ID,user_id,getpassword.c_str());
+        sprintf(buf,"%c%s%s%s",LOGIN_PERSON_CODE2,TERMINAL_ID,TRUE_IP.c_str(),getpassword.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
 
 
         WAIT_FOR_LOGOUTPASSWORD_FEEDBACK:
-        sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
         if(!(isneed(LOGIN_ROOT_PASSWORD_RIGHT,TRUE_IP,buf)||isneed(LOGIN_ROOT_PASSWORD_WRONG,TRUE_IP,buf))){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
+            sleep(1);
             goto WAIT_FOR_LOGOUTPASSWORD_FEEDBACK;
         }
 
@@ -195,18 +202,18 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
 
         }
         else{
-
+            goto INPUT;
         }
         memset(buf, 0, BUFF_LEN);
-        sprintf(buf,"%c%s%d%d,%s,%s,%s,%s",ROOT_OP,TERMINAL_ID,user_id,get,USER_ID.c_str(),USER_ACCOUNT.c_str(),USER_PASSWORD.c_str(),USER_IDENTITY.c_str());
+        sprintf(buf,"%c%s%s%d,%s,%s,%s,%s",ROOT_OP,TERMINAL_ID,TRUE_IP.c_str(),get,USER_ID.c_str(),USER_ACCOUNT.c_str(),USER_PASSWORD.c_str(),USER_IDENTITY.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
         
         WAIT_FOR_ROOT_FEEDBACK:
-        sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
         if(!isneed(ROOT_OP_FEEDBACK,TRUE_IP,buf)){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
+            sleep(1);
             goto WAIT_FOR_ROOT_FEEDBACK;
         }
         
@@ -215,7 +222,7 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     }
     cout<<"--------------------------------"<<endl;
     cout<<"Hi "+USER_INFORMATION[1]+",Welcome to the user system!"<<endl;
-
+    cin.ignore(INT32_MAX,'\n');
     while(pos_copy!='0'){
         system("clear");
         cout<<"--------------------------------"<<endl;
@@ -227,36 +234,36 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         
         //step one ask for options and reveive the options as a feedback from the terminal
         memset(buf, 0, BUFF_LEN);
-        sprintf(buf,"%c%s%d",ASK_FOR_OPTION_SHOW,TERMINAL_ID,user_id);
+        sprintf(buf,"%c%s%s",ASK_FOR_OPTION_SHOW,TERMINAL_ID,TRUE_IP.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
 
         WAIT_FOR_OPTION_SHOW_FEEDBACK:
-        sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);
         if(!isneed_accurate(ASK_FOR_OPTION_SHOW_FEEDBACK,TRUE_IP,TERMINAL_ID,buf)){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
+            sleep(1);
             goto WAIT_FOR_OPTION_SHOW_FEEDBACK;
         }
         
-        pair<char,pair<string,string>>information_get = decode_options(decode(buf));//first: how many options   second-first: extra output second-second: options
+        pair<string,pair<string,string>>information_get = decode_options(decode(buf));//first: how many options   second-first: extra output second-second: options
         //step two print the options, split with ; like: extra output;options    get an input
         cout<<information_get.second.first;
         cout<<"-~-   -~-   -~-   -~-   -~-   -~-"<<endl;
         cout<<information_get.second.second;
-        char get_input = GET_PUT(information_get.first);
+        string get_input = GET_PUT(information_get.first);
         
         //step three send the choice back and change the options
         memset(buf, 0, BUFF_LEN);
-        sprintf(buf,"%c%s%d%c",POS_UPDATE_ASK,TERMINAL_ID,user_id,get_input);
+        sprintf(buf,"%c%s%s%s",POS_UPDATE_ASK,TERMINAL_ID,TRUE_IP.c_str(),get_input.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
 
         WAIT_FOR_POS_FEEDBACK:
-        sleep(1);
         memset(buf, 0, BUFF_LEN);
         recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);
         if(!isneed_accurate(POS_UPDATE_FEEDBACK,TRUE_IP,TERMINAL_ID,buf)){
             sendto(fd, buf, BUFF_LEN, 0, dst, len);
+            sleep(1);
             goto WAIT_FOR_POS_FEEDBACK;
         }
         string str_temp_for_copy = decode(buf);

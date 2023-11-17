@@ -3,8 +3,9 @@
 #include<cstring>
 #include<vector>
 #include<mysql/mysql.h>
+#include"QUERY.h"
 using namespace std;
-//g++ -o C1 TDB.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
+//g++ -o C1 TDB.cpp QUERY.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
  //sudo cat /etc/mysql/debian.cnf
  //mysql -udebian-sys-maint -p
 string FORMAT(string target, int len){
@@ -18,6 +19,7 @@ string FORMAT(string target, int len){
     return output;
 }
 
+
 int main(){
     MYSQL mysql;
     mysql_init(&mysql); 
@@ -29,8 +31,8 @@ int main(){
         cout<<"connect success\n";
     }
     string sql = "select * from users where ID = '202164700325'";
-    mysql_query(&mysql,sql.c_str());
-    MYSQL_RES * result = mysql_store_result(&mysql);
+    MYSQL_RES * result = NULL;
+    basic_search(&mysql, &result, sql);
     MYSQL_ROW row = mysql_fetch_row(result);
     cout<<FORMAT(row[0],20)<<FORMAT(row[1],20)<<FORMAT(row[2],20)<<FORMAT(row[3],20);
 }

@@ -1,4 +1,6 @@
 //operating code
+#ifndef CODE_H
+#define CODE_H
 #include<sys/types.h>
 #include<sys/socket.h>   
 #include<netinet/in.h>
@@ -16,88 +18,41 @@ using namespace std;
 #define LOGIN_FEEDBACK_CODE_FAIL '1'
 #define LOGIN_FEEDBACK_CODE_SUCCESS '2'
 #define LOGIN_PERSON_CODE '3'
-#define LOGOUT_CONFIRMATION '4'
-#define LOGIN_ROOT_PASSWORD_WRONG '5'
-#define LOGIN_ROOT_PASSWORD_RIGHT '6'
-#define LOGIN_PERMIT '7'    
-#define ROOT_OP '8'
-#define ROOT_OP_FEEDBACK '9'
-#define STUDENT_LOGIN 'a'
-#define POS_UPDATE_ASK 'b'
-#define POS_UPDATE_FEEDBACK 'c'
-#define ASK_FOR_OPTION_SHOW 'd'
+#define LOGIN_PERSON_CODE2 '4'
+#define LOGOUT_CONFIRMATION '5'
+#define LOGIN_ROOT_PASSWORD_WRONG '6'
+#define LOGIN_ROOT_PASSWORD_RIGHT '7'
+#define LOGIN_PERMIT '8'    
+#define ROOT_OP '9'
+#define ROOT_OP_FEEDBACK 'a'
+#define STUDENT_LOGIN 'b'
+#define POS_UPDATE_ASK 'c'
+#define POS_UPDATE_FEEDBACK 'd'
+#define ASK_FOR_OPTION_SHOW 'e'
 // split with ,  the first bit represents the call of input function in users program
-#define ASK_FOR_OPTION_SHOW_FEEDBACK 'e'
+#define ASK_FOR_OPTION_SHOW_FEEDBACK 'f'
 
 
 
 //terminal ID
 #define TERMINAL_ID "10000"
 
-void sleep(unsigned int time){
-    struct timeval tv;
-    tv.tv_sec = time;
-    tv.tv_usec = 0;
-    select(0,NULL,NULL,NULL,&tv);
 
-}
+void sleep(unsigned int time);
 
-bool isneed(char code, string target,string buf){
-    if(buf[0]!=code){
-        return false;
-    }
-    if(target!=buf.substr(1,5)){
-        return false;
-    }
-    return true;
-}
+bool isneed(char code, string target,string buf);
 
-bool isneed_accurate(char code, string target, string origin,string buf){
-    if(buf[0]!=code){
-        return false;
-    }
-    if(target!=buf.substr(1,5)){
-        return false;
-    }
-    if(origin!=buf.substr(6,5)){
-        return false;
-    }
-    return true;
-}
-string get_region(string buf){
-    return buf.substr(6,5);
-}
-string decode(string buf){
-    return buf.substr(11);
-}
-string RE_TO_SEND(string buf){
-    return buf[0] + buf.substr(6,5) + buf.substr(1,5) + buf.substr(11);
-}
+bool isneed_accurate(char code, string target, string origin,string buf);
 
-pair<char,pair<string,string>> decode_options(string buf){
-    pair<char,pair<string,string>>output;
-    output.first = buf[0];
-    buf = buf.substr(1);
-    int index = 0;
-    for(int i = 0;i<buf.size();i++){
-        if(buf[i]==';'){
-            index=i;
-            break;
-        }
-    }
-    //cout<<"debug---"<<endl;
-    //cout<<buf.substr(0,index)<<endl;
-    //cout<<buf.substr(index+1)<<endl;
-    //cout<<"--------"<<endl;
-    output.second = make_pair(buf.substr(0,index),buf.substr(index+1));
-    return output;
-}
-string FORMAT(string target, int len){
-    string output(len,' ');
-    for(int i = 0;i<len;i++){
-        if(i<target.size()){
-            output[i] = target[i];
-        }
-    }
-    return output;
-}
+string get_region(string buf);
+
+string decode(string buf);
+
+string RE_TO_SEND(string buf);
+
+pair<string,pair<string,string>> decode_options(string buf);
+
+string FORMAT(string target, int len);
+
+
+#endif
