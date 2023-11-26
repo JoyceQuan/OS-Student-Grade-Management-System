@@ -23,7 +23,9 @@ string FORMAT(string target, int len){
 int main(){
     MYSQL mysql;
     mysql_init(&mysql); 
-    if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    //vicky
+    // if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    if(mysql_real_connect(&mysql,"localhost","Manager","123456","OS",0,NULL,0) == NULL){
 	    cout << "connect fail\n";
 	    return-1;
     }

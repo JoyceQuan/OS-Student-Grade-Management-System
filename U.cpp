@@ -51,9 +51,9 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     cout<<"Asking for your identity id(10001-19999)"<<endl;
         //error!!!!!   ok
     user_id = 10001; //initialize to 10001, get a right IP from the terminal
-    sprintf(buf,"%c%s%d",LOGIN_CODE,TERMINAL_ID,user_id);
+    sprintf(buf,"%c%s%d",LOGIN_CODE,TERMINAL_ID,user_id);//格式化输出到buf
     len = sizeof(*dst);
-    sendto(fd, buf, BUFF_LEN, 0, dst, len);
+    sendto(fd, buf, BUFF_LEN, 0, dst, len);//send
     cout<<"Start waiting for the response!"<<endl;
     WAITING_LOGINFEEDBACK:
     memset(buf, 0, BUFF_LEN);
@@ -61,16 +61,19 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     cout<<"receive:"<<buf<<endl;
     string str_temp(buf);
     if(!(isneed(LOGIN_FEEDBACK_CODE_FAIL,to_string(user_id),str_temp)||isneed(LOGIN_FEEDBACK_CODE_SUCCESS,to_string(user_id),str_temp))){
+        //接受的不是登录的信息
         cout<<"receive package:"<<buf<<",error"<<endl;
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
         sleep(1);
         goto WAITING_LOGINFEEDBACK;
     }
     if(str_temp[0]==LOGIN_FEEDBACK_CODE_FAIL){
+        //fail
         cout<<"The terminal is full, please wait a minute!"<<endl;
         exit(0);
     }
     else{
+        //success
         TRUE_IP = decode(str_temp);
         cout<<"get ip: "<<TRUE_IP<<endl;
     }

@@ -33,7 +33,7 @@ string identity_to_name[4] = {
     "administrator"
 };
 
-int FD;
+int FD;//
 int NUM;
 bool IP_STATE[IP_MAXSIZE];
 int pointer = 0;
@@ -527,8 +527,10 @@ void handle_msg(int fd,struct sockaddr* dst){
     while(true){
         BEGINS:
         char buf_temp[BUFF_LEN];
+        //Init
         memset(buf_temp,0,BUFF_LEN);
         memset(buf,0,BUFF_LEN);
+        //Listening
         len = sizeof(clent_addr);
         count = recvfrom(fd,buf_temp,BUFF_LEN,0,(struct sockaddr*)&clent_addr,&len);
         if(count == -1){
@@ -539,19 +541,16 @@ void handle_msg(int fd,struct sockaddr* dst){
 
         string str_temp(buf_temp);
         if(!isneed(LOGIN_CODE,TERMINAL_ID,str_temp)){
+            //Not Log in
             sendto(fd,buf_temp,BUFF_LEN,0,(struct sockaddr*)&clent_addr,len);
             sleep(1);
             goto BEGINS;
         }
 
-
-        string str_temp2 = decode(str_temp);
-        string str_user_code = get_region(str_temp);
+        string str_temp2 = decode(str_temp);//Command,
+        string str_user_code = get_region(str_temp);//userID
 
         //contribute ip to user
-
-
-
         int true_ip = 0;
         int temp_pointer = pointer;
         int flag = 0;
@@ -570,20 +569,20 @@ void handle_msg(int fd,struct sockaddr* dst){
         //full
         if(flag==2){
             memset(buf,0,BUFF_LEN);
+            //fail
             sprintf(buf,"%c%s%s",LOGIN_FEEDBACK_CODE_FAIL,str_user_code.c_str(),TERMINAL_ID);
             sendto(fd,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,len);
             sleep(1);
             goto BEGINS;
         }
 
-        //success
+        //success and send back
         true_ip = 10000+pointer+1;
         LOCK.lock();
         IP_STATE[pointer] = true;
         LOCK.unlock();
-        memset(buf,0,BUFF_LEN);
-        sprintf(buf,"%c%s%s",LOGIN_FEEDBACK_CODE_SUCCESS,str_user_code.c_str(),TERMINAL_ID);
-        
+        // memset(buf,0,BUFF_LEN);
+        // sprintf(buf,"%c%s%s",LOGIN_FEEDBACK_CODE_SUCCESS,str_user_code.c_str(),TERMINAL_ID);
         cout<<"Receive:"<<true_ip<<" is on!"<<endl;
         memset(buf,0,BUFF_LEN);
         sprintf(buf,"%c%s%s%d",LOGIN_FEEDBACK_CODE_SUCCESS,str_user_code.c_str(),TERMINAL_ID,true_ip);
@@ -591,9 +590,6 @@ void handle_msg(int fd,struct sockaddr* dst){
         //login option receive
         thread(Mul_handle,to_string(true_ip),dst).detach();
         goto BEGINS;
-
-
-
     }
 
 }
@@ -639,7 +635,9 @@ int main(){
 
     cout<<"Mysql initialization begins:"<<endl;
     mysql_init(&mysql); 
-    if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    //vicky
+    // if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    if(mysql_real_connect(&mysql,"localhost","Manager","123456","OS",0,NULL,0) == NULL){
 	    cout << "connect fail!\n";
 	    exit(0);
     }
