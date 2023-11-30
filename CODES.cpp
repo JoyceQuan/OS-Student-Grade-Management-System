@@ -14,7 +14,7 @@ bool isneed(char code, string target,string buf){
     if(buf[0]!=code){
         return false;
     }
-    if(target!=buf.substr(1,5)){
+    if(target!=buf.substr(1,5)){//接收端是否为target
         return false;
     }
     return true;

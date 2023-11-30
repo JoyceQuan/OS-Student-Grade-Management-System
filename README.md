@@ -59,7 +59,7 @@
   当文件大小大于1blcok时，需要fileExpansion。  
   暂时还没细想，实现过程书中有，目前推测就是在相关的block间像Dirblock那样加指针。
 
-### **1.4 Process Communication
+### **1.4 Process Communication**
 - **远程访问**
   程序使用socket进行网络编程，实现用户的远程访问。
   本程序使用两个终端来模拟服务器端和用户端，使用UDP协议以及本机IP进行通信。
@@ -103,7 +103,11 @@
 ## 2 Preparation
 ### Prepare MySQL
 * [Install MySQL in Ubuntu](https://blog.csdn.net/fanrongwoaini/article/details/107518693)
-
+* Create Database OS
+```sql
+create Database OS;
+use OS;
+```
 * Create 2 tables: course、users
 ```sql
 create TABLE course (
@@ -114,7 +118,7 @@ PRIMARY KEY(ID)) ;
 
 create TABLE users(
 ID varchar(30) NOT NULL,
-Account  varchar(30),
+Name  varchar(30),
 Password  varchar(30),
 Identity INT NOT NULL,
  PRIMARY KEY(ID));
@@ -132,12 +136,33 @@ insert into course values('01201','Quantum Mechanics',4);
 insert into course values('LA101','Chinese Language',2);
 insert into course values('LA255','English Writing',2);
 ```
-* Insect users:0:学生；1:老师；2：管理员
+* Insect users:1:学生；2:老师；3：管理员;"200000000000"为root
 ```sql
-insert into users values('1','1','1',1);
-insert into users values('2','2','2',2);
-insert into users values('3','3','3',3);
+insert into users values('202164700141','lwj','1',1);
+insert into users values('202164700325','lyy','2',2);
+insert into users values('202164700326','qqx','3',3);
+insert into users values('200000000000','','123456',)
+```
+* 新增服务器用户，用于连接服务器
+```sql
+CREATE USER 'Manager'@'localhost' IDENTIFIED BY '123456';
+GRANT ALL PRIVILEGES ON OS.* TO 'Manager'@'localhost';
+FLUSH PRIVILEGES;
+```
+* TDB.cpp is used to check connection between mysql and Program;
+```bash
+g++ -o Compile/DBconnectTest TDB.cpp QUERY.cpp -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
+
+Compile/DBconnectTest
 ```
 
 ## Code
 * Terminal:T.cpp ;  Client:U.cpp
+* "mysql_config"查看LIB依赖:-I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
+* compile and run
+```bash
+bash T.sh
+bash U.sh
+bash FS.sh
+```
+* Compile文件夹存储编译后的程序

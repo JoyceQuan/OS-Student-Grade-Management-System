@@ -3,23 +3,23 @@
 using namespace std;
 
 vector<string> priviledge::priviledges = {
-    "11:Choose courses","211:Optional courses","212:Selection",
-    "12:Selected courses","221:Choose course","3211:Homework","3212:Hand in homework","3213:Ratings","222:Credits",
-    "13:Charge your course","231:Assign homework","232:Received homework","233:Homework feedback",
-    "14:Rights management","241:Information encyclopedia","242:Right assignment","3421:Single user assignment","3422:Group assignment",
-    "15:Charge groups","251:Free grouping","252:Assignment according to courses","3521:Unassigned courses","3522:Assign according to course ID",
-    "16:Charge courses","261:Offer courses","3611:All courses' information","3612:Offer courses according to course id","262:End courses","3621:Unfinished courses","3622:End courses according to course ID",
-    "17:File snapshot","271:Excute file snapshot","272:Recover file",
-    "18:Information","281:Group information","282:Personal information","283:Change password",
-    "19:quit","291:back","3911:back"
+    "11:Choose courses"    ,"211:Optional courses"        ,"212:Selection",
+    "12:Selected courses"  ,"221:Choose course"           ,"3211:Homework","3212:Hand in homework","3213:Ratings","222:Credits",
+    "13:Charge your course","231:Assign homework"         ,"232:Received homework","233:Homework feedback",
+    "14:Rights management" ,"241:Information encyclopedia","242:Right assignment","3421:Single user assignment","3422:Group assignment",
+    "15:Charge groups"     ,"251:Free grouping"           ,"252:Assignment according to courses","3521:Unassigned courses","3522:Assign according to course ID",
+    "16:Charge courses"    ,"261:Offer courses"           ,"3611:All courses' information","3612:Offer courses according to course id","262:End courses","3621:Unfinished courses","3622:End courses according to course ID",
+    "17:File snapshot"     ,"271:Excute file snapshot"    ,"272:Recover file",
+    "18:Information"       ,"281:Group information"       ,"282:Personal information","283:Change password",
+    "19:quit"              ,"291:back","3911:back"
 };
 
 vector<vector<int>> priviledge::default_flagset = {
-    {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
-    {0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1}
+    {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},//student
+    {0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1},//teacher
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1}//Manager(Administrator)
  };
-void priviledge::setdefault(){
+void priviledge::setdefault(){//set flagset according to identity
     for(int i = 0;i<default_flagset[identity-1].size();i++){
         flagset[i] = default_flagset[identity-1][i];
     }
@@ -32,7 +32,7 @@ priviledge::priviledge(int NUM){
     identity = NUM;
     setdefault();
 }
-priviledge::priviledge(bool flag,string target){
+priviledge::priviledge(bool flag,string target){//read from a txt
     if(flag==false){
         identity = atoi(target.c_str());
         setdefault();

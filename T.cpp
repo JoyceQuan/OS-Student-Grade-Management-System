@@ -33,15 +33,16 @@ string identity_to_name[4] = {
     "administrator"
 };
 
-int FD;
+int FD;//
 int NUM;
 bool IP_STATE[IP_MAXSIZE];
 int pointer = 0;
 mutex LOCK;
 unordered_set<string>ID_search;
 MYSQL mysql;
-string DEAL_THE_CODE(string op_code, priviledge* user_information, int* if_extra_input,bool* error_detect,int* step, string extra, 
-vector<string*>basic_information, string* target_path){
+string DEAL_THE_CODE(string op_code, priviledge* user_information,
+                     int* if_extra_input,bool* error_detect,int* step, string extra, 
+                    vector<string*>basic_information, string* target_path){
     cout<<"dealing option:"<<op_code<<endl;
     cout<<"if_extra_input:"<<*if_extra_input<<endl;
     string output = "";
@@ -62,7 +63,7 @@ vector<string*>basic_information, string* target_path){
                 query_all_courses(&mysql,output);
             }
             if(op_code=="281"){
-
+                    // Group information ,?
             }
             if(op_code=="282"){
                 query_basic_information(basic_information,output);
@@ -70,6 +71,9 @@ vector<string*>basic_information, string* target_path){
             if(op_code=="283"){
                 *if_extra_input = 1;
                 output+="Please input your old password and your new password(2 inputs required, don't input redundant spaces), splitting by blank space\n";
+            }
+            if(op_code==""){
+
             }
         }
         else{
@@ -177,15 +181,14 @@ void Mul_handle(string user_id, struct sockaddr* dst){
         LOCK.unlock();
         return;
     }
-
-
-
-    //login code
+    //login code:S,T,M
     else if(str_temp[0]=='1'||str_temp[0]=='2'||str_temp[0]=='3'){
+        //feedback
         memset(buf,0,BUFF_LEN);
         sprintf(buf,"%c%s%s",LOGIN_PERMIT,user_id.c_str(),TERMINAL_ID);
         sendto(FD,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,len);
         WAIT4://wait for user password and id
+        // check id and password
         memset(buf,0,BUFF_LEN);
         recvfrom(FD,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,&len);
         cout<<"receive package from"<<user_id<<":"<<buf<<endl;
@@ -196,7 +199,8 @@ void Mul_handle(string user_id, struct sockaddr* dst){
             sleep(1);
             goto WAIT4;
         }
-        str_temp2 = decode(str_temp2);
+        //split id and password 
+        str_temp2 = decode(str_temp2);//id and password
         stringstream ss(str_temp2);
         string temp_user_information[2];
         int pos = 0;
@@ -205,6 +209,7 @@ void Mul_handle(string user_id, struct sockaddr* dst){
             temp_user_information[pos] = temp;
             pos++;
         }
+        //query
         cout<<"start query:"<<endl;
         string sql = "select * from users where ID = '"+temp_user_information[0]+"'";
         cout<<sql<<endl;
@@ -212,7 +217,6 @@ void Mul_handle(string user_id, struct sockaddr* dst){
         MYSQL_RES * result = mysql_store_result(&mysql);
         MYSQL_ROW row;
         row = mysql_fetch_row(result);
-
 
         if(ID_search.find(temp_user_information[0])!=ID_search.end()){
             mysql_free_result(result);
@@ -428,7 +432,7 @@ void Mul_handle(string user_id, struct sockaddr* dst){
 
 
     //----------
-    int extra_input_value = 0;  //0 represent user didnt be asked to input an extra information, while 1 does
+    int extra_input_value = 0;  //0 represent user isn't asked to input an extra information, while 1 does
     string extra_output = "Extra information(input 'help' if need):\n";
     string options = "";
     string temp_buf = "";
@@ -436,6 +440,7 @@ void Mul_handle(string user_id, struct sockaddr* dst){
     bool error_detect = true;
     int steps = 0;
     while(user_P.pos.first!='0'){
+        //wait for ASK_FOR_OPTION_SHOW
         WAIT5:
         memset(buf,0,BUFF_LEN);
         recvfrom(FD,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,&len);
@@ -446,6 +451,7 @@ void Mul_handle(string user_id, struct sockaddr* dst){
                 goto WAIT5;
         }
         if(extra_input_value==0){
+            //prepare ASK_FOR_OPTION_SHOW
             user_P.select();
             for(int i = 0;i<user_P.true_options.size();i++){
                 options+= to_string(i+1)+". "+user_P.true_options[i]+'\n';
@@ -455,11 +461,12 @@ void Mul_handle(string user_id, struct sockaddr* dst){
         else{
             options += "Input:\n";
         }
+        // answer ASK_FOR_OPTION_SHOW
         memset(buf,0,BUFF_LEN);
         sprintf(buf,"%c%s%s%c%d%s%c%s",ASK_FOR_OPTION_SHOW_FEEDBACK,user_id.c_str(),TERMINAL_ID,char(user_P.true_options.size()+48),extra_input_value,extra_output.c_str(),';',options.c_str());
         cout<<buf<<endl;
         sendto(FD,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,len);
-
+        // wait for POS_UPDATE_ASK
         WAIT6:
         memset(buf,0,BUFF_LEN);
         recvfrom(FD,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,&len);
@@ -468,13 +475,14 @@ void Mul_handle(string user_id, struct sockaddr* dst){
                 sleep(1);
                 goto WAIT6;
         }
+        // 
         extra_output = "Extra information(input 'help' if need):\n"; //initialize extra_output
         options = "";
         //deal the code here, decode(buf) to get the code
         //write a function to deal the code and send pos.first + pos.second + decode(buf) in to the function to get an extra output and change pos
         vector<string*> basic_information;
-        basic_information.push_back(&user_id);
-        basic_information.push_back(&USER_ID);
+        basic_information.push_back(&user_id);//ip
+        basic_information.push_back(&USER_ID);//
         basic_information.push_back(&USER_NAME);
         basic_information.push_back(&USER_IDENTITY);
         basic_information.push_back(&USER_PASSWORD);
@@ -487,10 +495,13 @@ void Mul_handle(string user_id, struct sockaddr* dst){
                 string buf_temp = decode(buf);
                 string str_to_ch = buf_temp.substr(0,1);
                 temp_buf = user_P.pos.first+user_P.pos.second+user_P.search_option(str_to_ch);
-                extra_output += DEAL_THE_CODE(user_P.pos.first+user_P.pos.second+user_P.search_option(decode(buf)),&user_P,&extra_input_value,&error_detect,&steps,"",basic_information,&target_path);
+                extra_output += DEAL_THE_CODE(user_P.pos.first+user_P.pos.second+user_P.search_option(decode(buf)),
+                &user_P,&extra_input_value,&error_detect,&steps,"",basic_information,
+                &target_path);
             }
             else{
-                extra_output += DEAL_THE_CODE(temp_buf,&user_P,&extra_input_value,&error_detect,&steps,decode(buf),basic_information,&target_path);
+                extra_output += DEAL_THE_CODE(temp_buf,&user_P,&extra_input_value,
+                &error_detect,&steps,decode(buf),basic_information,&target_path);
             }
         }
         else{
@@ -527,8 +538,10 @@ void handle_msg(int fd,struct sockaddr* dst){
     while(true){
         BEGINS:
         char buf_temp[BUFF_LEN];
+        //Init
         memset(buf_temp,0,BUFF_LEN);
         memset(buf,0,BUFF_LEN);
+        //Listening
         len = sizeof(clent_addr);
         count = recvfrom(fd,buf_temp,BUFF_LEN,0,(struct sockaddr*)&clent_addr,&len);
         if(count == -1){
@@ -539,19 +552,16 @@ void handle_msg(int fd,struct sockaddr* dst){
 
         string str_temp(buf_temp);
         if(!isneed(LOGIN_CODE,TERMINAL_ID,str_temp)){
+            //Not Log in
             sendto(fd,buf_temp,BUFF_LEN,0,(struct sockaddr*)&clent_addr,len);
             sleep(1);
             goto BEGINS;
         }
 
-
-        string str_temp2 = decode(str_temp);
-        string str_user_code = get_region(str_temp);
+        string str_temp2 = decode(str_temp);//Command,
+        string str_user_code = get_region(str_temp);//userID
 
         //contribute ip to user
-
-
-
         int true_ip = 0;
         int temp_pointer = pointer;
         int flag = 0;
@@ -570,20 +580,20 @@ void handle_msg(int fd,struct sockaddr* dst){
         //full
         if(flag==2){
             memset(buf,0,BUFF_LEN);
+            //fail
             sprintf(buf,"%c%s%s",LOGIN_FEEDBACK_CODE_FAIL,str_user_code.c_str(),TERMINAL_ID);
             sendto(fd,buf,BUFF_LEN,0,(struct sockaddr*)&clent_addr,len);
             sleep(1);
             goto BEGINS;
         }
 
-        //success
+        //success and send back
         true_ip = 10000+pointer+1;
         LOCK.lock();
         IP_STATE[pointer] = true;
         LOCK.unlock();
-        memset(buf,0,BUFF_LEN);
-        sprintf(buf,"%c%s%s",LOGIN_FEEDBACK_CODE_SUCCESS,str_user_code.c_str(),TERMINAL_ID);
-        
+        // memset(buf,0,BUFF_LEN);
+        // sprintf(buf,"%c%s%s",LOGIN_FEEDBACK_CODE_SUCCESS,str_user_code.c_str(),TERMINAL_ID);
         cout<<"Receive:"<<true_ip<<" is on!"<<endl;
         memset(buf,0,BUFF_LEN);
         sprintf(buf,"%c%s%s%d",LOGIN_FEEDBACK_CODE_SUCCESS,str_user_code.c_str(),TERMINAL_ID,true_ip);
@@ -591,9 +601,6 @@ void handle_msg(int fd,struct sockaddr* dst){
         //login option receive
         thread(Mul_handle,to_string(true_ip),dst).detach();
         goto BEGINS;
-
-
-
     }
 
 }
@@ -639,7 +646,9 @@ int main(){
 
     cout<<"Mysql initialization begins:"<<endl;
     mysql_init(&mysql); 
-    if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    //vicky
+    // if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    if(mysql_real_connect(&mysql,"localhost","Manager","123456","OS",0,NULL,0) == NULL){
 	    cout << "connect fail!\n";
 	    exit(0);
     }
