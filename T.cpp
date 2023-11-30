@@ -72,9 +72,107 @@ string DEAL_THE_CODE(string op_code, priviledge* user_information,
                 *if_extra_input = 1;
                 output+="Please input your old password and your new password(2 inputs required, don't input redundant spaces), splitting by blank space\n";
             }
-            if(op_code==""){
+            if(op_code=="212"){
+                //选课
+            }
+            if(op_code=="221"){
+                //展示已选课程，并进入下一页
+            }
+            if(op_code=="222"){
+                //展示已选课程和学分,和221合并
 
             }
+            if(op_code=="3211"){
+                //查看作业
+
+            }
+            if(op_code=="3212"){
+                //交作业
+            }
+            if(op_code=="3213"){
+                //查看成绩
+            }
+            if(op_code=="231"){
+                //布置作业
+            }
+            if(op_code=="232"){
+                //查看已交作业
+            }
+            if(op_code=="233"){
+                //作业打分
+            }
+            if(op_code=="241"){
+                //展示所有用户，输入用户id和对应权限，分配权限
+            }
+            if(op_code=="242"){
+                //权限分配，and 下一页
+            }
+            if(op_code=="3421"){
+                //单用户分配
+            }
+            if(op_code=="3422"){
+                //组分配
+            }
+            if(op_code=="251"){
+                //自由分组
+            }
+            if(op_code=="252"){
+                //根据课程分组，进入下一页
+
+            }
+            if(op_code=="3521"){
+                //查看未开设的课程
+
+            }
+            if(op_code=="3522"){
+                //根据课程ID，开设Group
+
+            }
+            if(op_code=="261"){
+                //开设的课程，进入下一页
+
+            }
+            if(op_code=="3611"){
+                //课程信息
+
+            }
+            if(op_code=="3612"){
+                //根据ID开设课程
+
+            }
+            if(op_code=="262"){
+                //结课页面，进入下一页
+
+            }
+            if(op_code=="3621"){
+                //展示正在上的课程
+
+            }
+            if(op_code=="3622"){
+                //根据课程结课
+
+            }
+            if(op_code=="271"){
+                //执行文件快照
+
+            }
+            if(op_code=="272"){
+                //根据快照，恢复文件
+
+            }
+            if(op_code=="281"){
+                //查看组信息
+
+            }
+            if(op_code=="282"){
+                //查看个人信息
+
+            }
+            if(op_code=="283"){
+                //修改密码
+
+            }
+
         }
         else{
             //deal system code here

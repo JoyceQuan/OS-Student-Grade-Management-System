@@ -8,7 +8,8 @@ vector<string> priviledge::priviledges = {
     "13:Charge your course","231:Assign homework"         ,"232:Received homework","233:Homework feedback",
     "14:Rights management" ,"241:Information encyclopedia","242:Right assignment","3421:Single user assignment","3422:Group assignment",
     "15:Charge groups"     ,"251:Free grouping"           ,"252:Assignment according to courses","3521:Unassigned courses","3522:Assign according to course ID",
-    "16:Charge courses"    ,"261:Offer courses"           ,"3611:All courses' information","3612:Offer courses according to course id","262:End courses","3621:Unfinished courses","3622:End courses according to course ID",
+    "16:Charge courses"    ,"261:Offer courses"           ,"3611:All courses' information","3612:Offer courses according to course id",
+                            "262:End courses","3621:Unfinished courses","3622:End courses according to course ID",
     "17:File snapshot"     ,"271:Excute file snapshot"    ,"272:Recover file",
     "18:Information"       ,"281:Group information"       ,"282:Personal information","283:Change password",
     "19:quit"              ,"291:back","3911:back"
