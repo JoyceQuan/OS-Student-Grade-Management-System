@@ -35,3 +35,6 @@ void query_basic_information(vector<string*>& basic_information, string& output)
     int id_for_identity_to_name = atoi(basic_information[3]->c_str());
     output+=FORMAT2(*basic_information[0],10)+FORMAT2(*basic_information[1],15)+FORMAT2(*basic_information[2],15)+FORMAT2(identity_to_name[id_for_identity_to_name],15)+'\n';
 }
+// void query_courseID(MYSQL* mysql, string& output,string courseID){
+
+// }

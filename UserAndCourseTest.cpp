@@ -2,6 +2,9 @@
 // #include "COURSE.h"
 #include "FileSystem/inode.h"
 #include "FileSystem/txt.h"
+#include "QUERY.h"
+#include<mysql/mysql.h>
+#include "CODES.h"
 using namespace std;
 
 int main() 
@@ -15,76 +18,26 @@ int main()
     int running = 1;
     int choice;
     string info[3];
-    info[0]=
+    //mysql init and connect
+    MYSQL mysql;
+    mysql_init(&mysql); 
+    //vicky
+    // if(mysql_real_connect(&mysql,"localhost","root","123456","Project",0,NULL,0) == NULL){
+    if(mysql_real_connect(&mysql,"localhost","Manager","123456","OS",0,NULL,0) == NULL){
+	    cout << "connect fail\n";
+	    return-1;
+    }
+    else{
+        cout<<"connect success\n";
+    }
+    //query
+    string sql = "select * from Course where ID = 'CS101'";
+    MYSQL_RES * result = NULL;
+    basic_search(&mysql, &result, sql);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    cout<<FORMAT(row[0],20)<<FORMAT(row[1],20)<<FORMAT(row[2],20)<<FORMAT(row[3],20);
 
-    // while (running == 1) {
-    //     //每次运行均检查是否需要拓展inode
-    //     inodeExtend(superBlock,inodeListMem,blockMem);
-
-    //     printf("The system supports following commands:\n"
-    //            "1. Create a directory\n"
-    //            "2. Delete a directory\n"
-    //            "3. List Files\n"
-    //            "4. Create a file\n"
-    //            "5. Delete a file\n"
-    //            "6. Read a file\n"
-    //            "7. Write a file\n"
-    //            "0. Exit\n"
-    //            "Input your command number:\n"
-    //            );
-    //     scanf("%i", &choice);
-    //     char path[100];
-    //     std::cout<<"Input the path:"<<std::endl;
-    //     scanf("%s", path);
-    //     std::string outputString;
-    //     std::string inputLine;
-       
-    //     switch (choice)
-    //     {
-    //     case 1:{
-    //         std::cout<<"input vector string:"<<std::endl;
-    //         std::vector<std::string> P(3);
-    //         std::cin>>P[0]>>P[1]>>P[2];
-    //         // check_Privilige_by_Path(choice,0,path,0,superBlock,inodeListMem,blockMem);
-    //         CreateD(path,outputString,P,superBlock,inodeListMem,blockMem);
-    //         break;
-    //     }
-    //     case 2:
-    //         DeleteD(path,outputString,superBlock,inodeListMem,blockMem);
-    //         break;
-
-    //     case 3:
-    //         listFiles(path,outputString,superBlock,inodeListMem,blockMem);
-    //         break;
-
-    //     case 4:
-    //         CreateF(path,outputString,superBlock,inodeListMem,blockMem);
-    //         break;
-
-    //     case 5:
-    //         DeleteF(path,outputString,superBlock,inodeListMem,blockMem);
-    //         break;
-
-    //     case 6:
-    //         readFile(path,outputString,superBlock,inodeListMem,blockMem);
-    //         break;
-
-    //     case 7:
-    //         std::cout<<"Input the file:"<<std::endl;
-           
-    //         std::getline(std::cin, inputLine, '$');
-    //         WriteF(path,outputString,inputLine,superBlock,inodeListMem,blockMem);
-    //         break;
-
-    //     case 0:
-    //         exit(0);
-        
-    //     default:
-    //         printf("Please input a valid command number\n");
-    //         break;
-    //     }
-    //     std::cout<<outputString;
-    // }
-        return 0;
+    
+    return 0;
 
 }
