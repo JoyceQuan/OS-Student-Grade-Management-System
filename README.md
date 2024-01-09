@@ -103,6 +103,7 @@
 ## 2 Preparation
 ### Prepare MySQL
 * [Install MySQL in Ubuntu](https://blog.csdn.net/fanrongwoaini/article/details/107518693)
+* "mysql_config"查看LIB依赖:-I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
 * Create Database OS
 ```sql
 create Database OS;
@@ -118,7 +119,7 @@ PRIMARY KEY(ID)) ;
 
 create TABLE users(
 ID varchar(30) NOT NULL,
-Account  varchar(30),
+Name  varchar(30),
 Password  varchar(30),
 Identity INT NOT NULL,
  PRIMARY KEY(ID));
@@ -136,11 +137,13 @@ insert into course values('01201','Quantum Mechanics',4);
 insert into course values('LA101','Chinese Language',2);
 insert into course values('LA255','English Writing',2);
 ```
-* Insect users:0:学生；1:老师；2：管理员
+* Insect users:ID为6位;5个学生，3个老师
+1:学生；2:老师；3：管理员;"200000000000"为root
 ```sql
-insert into users values('202164700141','1','1',1);
-insert into users values('202164700325','2','2',2);
-insert into users values('202164700326','3','3',3);
+insert into users values('700141','lwj','1',1);
+insert into users values('700302','sds','2',2);
+insert into users values('700313','qqx','3',3);
+insert into users values('200000','root','123456',3);
 ```
 * 新增服务器用户，用于连接服务器
 ```sql
@@ -154,13 +157,48 @@ g++ -o Compile/DBconnectTest TDB.cpp QUERY.cpp -I/usr/include/mysql -L/usr/lib/x
 
 Compile/DBconnectTest
 ```
-
-## Code
-* Terminal:T.cpp ;  Client:U.cpp
-* "mysql_config"查看LIB依赖:-I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient
-* compile and run
+### prepare FileSystem
 ```bash
+bash UACT.sh
+```
+## 3 Compile and Run
+```bash
+# 编译运行服务器端
 bash T.sh
+# 编译运行客户端
 bash U.sh
 ```
+## 4 文件架构
+<!-- * Terminal:T.cpp ;  Client:U.cpp ; FileSystem: inode.cpp,txt.cpp -->
 * Compile文件夹存储编译后的程序
+* disk_group_init.txt为初始化好的文件系统。
+### 代码
+- **服务器端文件**<br/>
+
+  T.cpp: 服务器端代码<br/>
+  
+- **用户端文件**<br/>
+
+  U.cpp: 用户端代码<br/>
+  
+- **头文件与其cpp文件**<br/>
+- 
+  QUERY.h QUERY.cpp: 数据库查询相关的代码<br/>
+  
+  CODES.h CODES.cpp: 网络包裹解码以及操作码定义<br/>
+  
+  PRIVILEDGE.h PRIVILEDGE.cpp: 用户显示层功能以及用户的初始化<br/>
+  
+  PAGE_CHANGE.h PAGE_CHANGE.cpp: 用户显示层页面切换相关的代码<br/>
+  
+  DATAS.h: 系统命令相关的代码<br/>
+  
+  HOMEWORK.h HOMEWORK.cpp: 作业操作相关的代码<br/>
+  
+  Admin_method.h Admin_method.cpp: 管理员操作相关的代码<br/>
+
+  inode.cpp inode.h txt.cpp txt.h: 文件系统代码
+
+  USER.cpp USER.h：用户类代码
+
+  COURSE.cpp COURSE.h: 课程类代码

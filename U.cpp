@@ -93,6 +93,7 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         goto INPUT;
     }
     if(get==5){
+        //quit
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%s%d",LOGIN_PERSON_CODE,TERMINAL_ID,TRUE_IP.c_str(),get);
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
@@ -110,7 +111,8 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         cout<<"Thank you for using!"<<endl;
         exit(0);
     }
-        //send the choice back to the terminal
+    
+    //send the choice(get) back to the terminal
     memset(buf, 0, BUFF_LEN);
     sprintf(buf,"%c%s%s%d",LOGIN_PERSON_CODE,TERMINAL_ID,TRUE_IP.c_str(),get);
     sendto(fd, buf, BUFF_LEN, 0, dst, len);
@@ -119,10 +121,11 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
     recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&src, &len);  //接收来自server的信息
 
     if(!isneed(LOGIN_PERMIT,TRUE_IP,buf)){
-        sendto(fd, buf, BUFF_LEN, 0, dst, len);
+        sendto(fd, buf, BUFF_LEN, 0, dst, len);//resend
         sleep(1);
         goto WAIT_FOR_LOGINPERMIT_FEEDBACK;
     }
+    //login
     string USER_INFORMATION[4];
     if(get==1 || get==2 || get==3){
         string USER_ID,USER_PASSWORD;
@@ -157,7 +160,7 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
             cout<<"login success!"<<endl;
         }   
     }
-    else if(get==4){
+    else if(get==4){//注册
         cout<<"Enter password for root:";
         string getpassword;
         cin>>getpassword;
@@ -174,7 +177,6 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
             sleep(1);
             goto WAIT_FOR_LOGOUTPASSWORD_FEEDBACK;
         }
-
 
         string str_temp_get(buf);
         if(str_temp_get[0]==LOGIN_ROOT_PASSWORD_WRONG){
@@ -202,11 +204,11 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
             cin>>USER_PASSWORD;
             cout<<"enter identity: 1.Student 2.Teacher 3.Administor:";
             cin>>USER_IDENTITY;
-
         }
         else{
             goto INPUT;
         }
+        //create new user
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%s%d,%s,%s,%s,%s",ROOT_OP,TERMINAL_ID,TRUE_IP.c_str(),get,USER_ID.c_str(),USER_ACCOUNT.c_str(),USER_PASSWORD.c_str(),USER_IDENTITY.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
@@ -223,6 +225,8 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         cout<<"success"<<endl;
         goto INPUT;
     }
+    
+    
     cout<<"--------------------------------"<<endl;
     cout<<"Hi "+USER_INFORMATION[1]+",Welcome to the user system!"<<endl;
     cin.ignore(INT32_MAX,'\n');
@@ -235,7 +239,7 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
         cout<<FORMAT("Identity",15)<<identity_to_name[id_for_identity_to_name]<<endl;
         cout<<"--------------------------------"<<endl;
         
-        //step one ask for options and reveive the options as a feedback from the terminal
+        //step one: ask for options and reveive the options as a feedback from the terminal
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%s",ASK_FOR_OPTION_SHOW,TERMINAL_ID,TRUE_IP.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
@@ -248,15 +252,15 @@ void udp_msg_sender(int fd, struct sockaddr* dst)
             sleep(1);
             goto WAIT_FOR_OPTION_SHOW_FEEDBACK;
         }
-        
+        //show infomation
         pair<string,pair<string,string>>information_get = decode_options(decode(buf));//first: how many options   second-first: extra output second-second: options
-        //step two print the options, split with ; like: extra output;options    get an input
+        //step two: print the options, split with ; like: extra output;options    get an input
         cout<<information_get.second.first;
         cout<<"-~-   -~-   -~-   -~-   -~-   -~-"<<endl;
         cout<<information_get.second.second;
-        string get_input = GET_PUT(information_get.first);
+        string get_input = GET_PUT(information_get.first);//receive and check
         
-        //step three send the choice back and change the options
+        //step three: send the choice back and change the options
         memset(buf, 0, BUFF_LEN);
         sprintf(buf,"%c%s%s%s",POS_UPDATE_ASK,TERMINAL_ID,TRUE_IP.c_str(),get_input.c_str());
         sendto(fd, buf, BUFF_LEN, 0, dst, len);
